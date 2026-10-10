@@ -190,6 +190,11 @@ export function createFx(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
     },
     update(dt: number, t: number, me: { x: number; z: number; moving: boolean; sky: boolean; zoneTint: number }) {
       if (!enabled) return;
+      // the basic set (medium = most phones and laptops): the film look and the
+      // motes only; the walls carry the glow themselves (wallpaper.ts). High adds
+      // the bloom, the light shafts and your trail.
+      const pf = profile();
+      bloom.enabled = pf.bloom;
       film.uniforms.time.value = t;
       nextDrop -= dt;
       if (nextDrop <= 0) {
@@ -222,7 +227,7 @@ export function createFx(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
             for (let j = cj - r; j <= cj + r && k < shafts.length; j++) {
               if (Math.max(Math.abs(i - ci), Math.abs(j - cj)) !== r || !hasPanel(i, j)) continue;
               shafts[k].position.set((i + 0.5) * CELL, WALL_H / 2, (j + 0.5) * CELL);
-              shafts[k].visible = !me.sky;
+              shafts[k].visible = !me.sky && pf.extras;
               k++;
             }
         for (; k < shafts.length; k++) shafts[k].visible = false;
@@ -230,7 +235,7 @@ export function createFx(renderer: THREE.WebGLRenderer, scene: THREE.Scene, came
       shaftMat.opacity = 0.055 + Math.sin(t * 0.9) * 0.02;
       // the trail
       tint.setHex(me.zoneTint);
-      if (me.moving && Math.hypot(me.x - lastDrop.x, me.z - lastDrop.z) > 0.35) {
+      if (pf.extras && me.moving && Math.hypot(me.x - lastDrop.x, me.z - lastDrop.z) > 0.35) {
         lastDrop = { x: me.x, z: me.z };
         const s = trail[trailK++ % trail.length];
         s.position.set(me.x, 0.25 + Math.random() * 0.2, me.z);

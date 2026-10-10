@@ -9,6 +9,7 @@ import { createRelief } from "./relief";
 import { WALL_VARIANTS, textureReady, zoneAt, zoneFloorMaterial, zoneOfCell, zoneWallMaterial, ZONE_CELLS, type ZoneDef } from "./zones";
 import { MAX_VIEW, profile } from "./tiers";
 import { release } from "./gpu";
+import { tickWallpaper } from "./wallpaper";
 
 const MAX_WALLS = (MAX_VIEW * 2 + 2) ** 2 * 2;
 const MAX_PANELS = (MAX_VIEW * 2 + 2) ** 2;
@@ -347,6 +348,8 @@ export function createWorld(): World {
       lastCell = key;
       rebuild(ci, cj);
     }
+
+    tickWallpaper(t, !profile().wallMotion);
 
     // floor/ceiling stay under the visitor; texture offset keeps the world fixed
     floor.position.set(px, 0, pz);
